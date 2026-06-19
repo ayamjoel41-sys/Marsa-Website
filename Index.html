@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MARSA PRO COMMAND CENTER</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial;
+    background: radial-gradient(circle at top, #0b0f2a, #000);
+    color: white;
+    text-align: center;
+}
+
+h1 { color: #00d9ff; margin-top: 20px; }
+
+.card {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid #00d9ff55;
+    margin: 10px auto;
+    width: 250px;
+    padding: 10px;
+    border-radius: 10px;
+}
+
+.panel {
+    width: 320px;
+    margin: 20px auto;
+    padding: 15px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 12px;
+    border: 1px solid #00d9ff55;
+}
+
+input, select, button {
+    width: 90%;
+    padding: 10px;
+    margin: 5px;
+    border-radius: 6px;
+    border: none;
+}
+
+button {
+    background: #00d9ff;
+    font-weight: bold;
+}
+
+ul { list-style: none; padding: 0; }
+
+li {
+    background: rgba(0,217,255,0.1);
+    margin: 5px;
+    padding: 8px;
+    border-radius: 6px;
+}
+.small { font-size: 12px; color: #aaa; }
+</style>
+
+</head>
+
+<body>
+
+<h1>🚀 MARSA PRO SYSTEM</h1>
+<p class="small">Advanced Space Command Platform</p>
+
+<!-- DASHBOARD -->
+<div class="card">Members: <span id="m">0</span></div>
+<div class="card">Projects: <span id="p">0</span></div>
+<div class="card">Missions: <span id="s">0</span></div>
+
+<!-- MEMBERS -->
+<div class="panel">
+<h2>👥 Members</h2>
+<input id="mn" placeholder="Name">
+<input id="mr" placeholder="Role">
+<button onclick="addMember()">Add Member</button>
+<ul id="ml"></ul>
+</div>
+
+<!-- MISSIONS -->
+<div class="panel">
+<h2>🛰️ Missions</h2>
+<input id="ms" placeholder="Mission name">
+<select id="assign"></select>
+<button onclick="addMission()">Assign Mission</button>
+<ul id="msl"></ul>
+</div>
+
+<!-- PROJECTS -->
+<div class="panel">
+<h2>📦 Projects</h2>
+<input id="pr" placeholder="Project name">
+<button onclick="addProject()">Add Project</button>
+<ul id="prl"></ul>
+</div>
+
+<!-- AI -->
+<div class="panel">
+<h2>🧠 MARSA AI</h2>
+<div id="aiBox">AI Ready 👨‍🚀</div>
+<input id="ai" placeholder="Ask AI">
+<button onclick="askAI()">Send</button>
+</div>
+
+<script>
+
+/* ================= DATA ================= */
+function save() {
+    localStorage.setItem("m", m);
+    localStorage.setItem("p", p);
+    localStorage.setItem("s", s);
+}
+
+let m = parseInt(localStorage.getItem("m") || 0);
+let p = parseInt(localStorage.getItem("p") || 0);
+let s = parseInt(localStorage.getItem("s") || 0);
+
+/* ================= DASHBOARD ================= */
+function update() {
+    document.getElementById("m").innerText = m;
+    document.getElementById("p").innerText = p;
+    document.getElementById("s").innerText = s;
+}
+
+/* ================= MEMBERS ================= */
+let members = JSON.parse(localStorage.getItem("members") || "[]");
+
+function addMember() {
+    let name = mn.value;
+    let role = mr.value;
+
+    if (!name || !role) return;
+
+    members.push({name, role});
+    localStorage.setItem("members", JSON.stringify(members));
+
+    mn.value = "";
+    mr.value = "";
+
+    renderMembers();
+}
+
+function renderMembers() {
+    ml.innerHTML = "";
+    assign.innerHTML = "";
+
+    members.forEach((x, i) => {
+        ml.innerHTML += `<li>${x.name} (${x.role})</li>`;
+        assign.innerHTML += `<option>${x.name}</option>`;
+    });
+}
+
+/* ================= MISSIONS ================= */
+let missions = JSON.parse(localStorage.getItem("missions") || "[]");
+
+function addMission() {
+    let text = ms.value;
+    let person = assign.value;
+
+    if (!text) return;
+
+    missions.push({text, person});
+    localStorage.setItem("missions", JSON.stringify(missions));
+
+    ms.value = "";
+
+    s++;
+    save();
+
+    renderMissions();
+    update();
+}
+
+function renderMissions() {
+    msl.innerHTML = "";
+
+    missions.forEach(x => {
+        msl.innerHTML += `<li>${x.text} → ${x.person}</li>`;
+    });
+}
+
+/* ================= PROJECTS ================= */
+let projects = JSON.parse(localStorage.getItem("projectsList") || "[]");
+
+function addProject() {
+    let text = pr.value;
+    if (!text) return;
+
+    projects.push(text);
+    localStorage.setItem("projectsList", JSON.stringify(projects));
+
+    pr.value = "";
+
+    p++;
+    save();
+
+    renderProjects();
+    update();
+}
+
+function renderProjects() {
+    prl.innerHTML = "";
+    projects.forEach(x => prl.innerHTML += `<li>${x}</li>`);
+}
+
+/* ================= AI ================= */
+function askAI() {
+    let input = ai.value.toLowerCase();
+    let out = "";
+
+    if (input.includes("member")) {
+        out = "Members: " + members.length;
+    }
+    else if (input.includes("mission")) {
+        out = "Missions: " + missions.length;
+    }
+    else if (input.includes("project")) {
+        out = "Projects: " + projects.length;
+    }
+    else if (input.includes("hello")) {
+        out = "Hello Commander 👨‍🚀";
+    }
+    else {
+        out = "Command not recognized";
+    }
+
+    aiBox.innerHTML += "<br>You: " + input + "<br>AI: " + out;
+    ai.value = "";
+}
+
+/* ================= START ================= */
+function start() {
+    renderMembers();
+    renderMissions();
+    renderProjects();
+    update();
+}
+
+start();
+
+</script>
+
+</body>
+</html><!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MARSA AI SYSTEM</title>
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<h1>🚀 MARSA COMMAND CENTER</h1>
+
+<!-- DASHBOARD -->
+<div class="card">
+    Members: <span id="m">0</span> |
+    Projects: <span id="p">0</span> |
+    Missions: <span id="s">0</span>
+</div>
+
+<!-- MEMBERS -->
+<div class="panel">
+<h2>👥 Members</h2>
+<input id="name" placeholder="Name">
+<input id="role" placeholder="Role">
+<button onclick="addMember()">Add Member</button>
+<ul id="ml"></ul>
+</div>
+
+<!-- MISSIONS -->
+<div class="panel">
+<h2>🛰️ Missions</h2>
+<input id="mission" placeholder="Type command or mission">
+<button onclick="runAI()">Run AI</button>
+<ul id="msl"></ul>
+</div>
+
+<!-- PROJECTS -->
+<div class="panel">
+<h2>📦 Projects</h2>
+<input id="project" placeholder="Project">
+<button onclick="addProject()">Add Project</button>
+<ul id="prl"></ul>
+</div>
+
+<!-- AI -->
+<div class="panel">
+<h2>🧠 MARSA AI</h2>
+<input id="ai" placeholder="Ask MARSA">
+<button onclick="ai()">Send</button>
+<div id="out"></div>
+</div>
+
+<script src="script.js"></script>
+
+</body>
+</html>

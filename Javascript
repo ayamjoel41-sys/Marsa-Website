@@ -1,0 +1,298 @@
+/* =========================
+   MARSA PRO SYSTEM JS
+========================= */
+
+/* ================= DATA ================= */
+let members = JSON.parse(localStorage.getItem("members") || "[]");
+let missions = JSON.parse(localStorage.getItem("missions") || "[]");
+let projects = JSON.parse(localStorage.getItem("projects") || "[]");
+
+let m = parseInt(localStorage.getItem("m") || 0);
+let p = parseInt(localStorage.getItem("p") || 0);
+let s = parseInt(localStorage.getItem("s") || 0);
+
+/* ================= DASHBOARD ================= */
+function updateDashboard() {
+    document.getElementById("m").innerText = m;
+    document.getElementById("p").innerText = p;
+    document.getElementById("s").innerText = s;
+}
+
+/* ================= MEMBERS ================= */
+function addMember() {
+    let name = document.getElementById("mn").value.trim();
+    let role = document.getElementById("mr").value.trim();
+
+    if (!name || !role) return;
+
+    members.push({ name, role });
+    localStorage.setItem("members", JSON.stringify(members));
+
+    document.getElementById("mn").value = "";
+    document.getElementById("mr").value = "";
+
+    renderMembers();
+}
+
+function renderMembers() {
+    let list = document.getElementById("ml");
+    let select = document.getElementById("assign");
+
+    list.innerHTML = "";
+    select.innerHTML = "";
+
+    members.forEach((m, i) => {
+        list.innerHTML += `
+            <li>
+                👤 ${m.name} (${m.role})
+                <button onclick="deleteMember(${i})">X</button>
+            </li>
+        `;
+
+        select.innerHTML += `<option value="${m.name}">${m.name}</option>`;
+    });
+}
+
+function deleteMember(i) {
+    members.splice(i, 1);
+    localStorage.setItem("members", JSON.stringify(members));
+    renderMembers();
+}
+
+/* ================= MISSIONS ================= */
+function addMission() {
+    let text = document.getElementById("ms").value.trim();
+    let person = document.getElementById("assign").value;
+
+    if (!text || !person) return;
+
+    missions.push({ text, person });
+    localStorage.setItem("missions", JSON.stringify(missions));
+
+    document.getElementById("ms").value = "";
+
+    s++;
+    localStorage.setItem("s", s);
+
+    renderMissions();
+    updateDashboard();
+}
+
+function renderMissions() {
+    let list = document.getElementById("msl");
+    list.innerHTML = "";
+
+    missions.forEach((m, i) => {
+        list.innerHTML += `
+            <li>
+                🛰️ ${m.text} → ${m.person}
+                <button onclick="deleteMission(${i})">X</button>
+            </li>
+        `;
+    });
+}
+
+function deleteMission(i) {
+    missions.splice(i, 1);
+    localStorage.setItem("missions", JSON.stringify(missions));
+    renderMissions();
+}
+
+/* ================= PROJECTS ================= */
+function addProject() {
+    let text = document.getElementById("pr").value.trim();
+
+    if (!text) return;
+
+    projects.push(text);
+    localStorage.setItem("projects", JSON.stringify(projects));
+
+    document.getElementById("pr").value = "";
+
+    p++;
+    localStorage.setItem("p", p);
+
+    renderProjects();
+    updateDashboard();
+}
+
+function renderProjects() {
+    let list = document.getElementById("prl");
+    list.innerHTML = "";
+
+    projects.forEach((p, i) => {
+        list.innerHTML += `
+            <li>
+                📦 ${p}
+                <button onclick="deleteProject(${i})">X</button>
+            </li>
+        `;
+    });
+}
+
+function deleteProject(i) {
+    projects.splice(i, 1);
+    localStorage.setItem("projects", JSON.stringify(projects));
+    renderProjects();
+}
+
+/* ================= AI SYSTEM ================= */
+function askAI() {
+    let input = document.getElementById("ai").value.trim().toLowerCase();
+    let box = document.getElementById("aiBox");
+
+    if (!input) return;
+
+    let response = "";
+
+    if (input.includes("member")) {
+        response = "We have " + members.length + " members in MARSA.";
+    }
+    else if (input.includes("mission")) {
+        response = "We have " + missions.length + " missions.";
+    }
+    else if (input.includes("project")) {
+        response = "We have " + projects.length + " projects.";
+    }
+    else if (input.includes("hello")) {
+        response = "Hello Commander 👨‍🚀 MARSA AI online.";
+    }
+    else if (input.includes("assign")) {
+        response = "Use mission panel to assign missions.";
+    }
+    else {
+        response = "Command not recognized. Try: members, missions, projects.";
+    }
+
+    box.innerHTML += `
+        <br><br>
+        <b>You:</b> ${input}<br>
+        <b>AI:</b> ${response}
+    `;
+
+    document.getElementById("ai").value = "";
+}
+
+/* ================= INIT ================= */
+function init() {
+    renderMembers();
+    renderMissions();
+    renderProjects();
+    updateDashboard();
+}
+
+init();/* ================= DATA ================= */
+let members = [];
+let missions = [];
+let projects = [];
+
+/* ================= SPEAK AI ================= */
+function speak(text){
+    let msg = new SpeechSynthesisUtterance(text);
+    speechSynthesis.speak(msg);
+}
+
+/* ================= DASHBOARD ================= */
+function update(){
+    document.getElementById("m").innerText = members.length;
+    document.getElementById("p").innerText = projects.length;
+    document.getElementById("s").innerText = missions.length;
+}
+
+/* ================= MEMBERS ================= */
+function addMember(){
+    let n = name.value;
+    let r = role.value;
+    if(!n||!r) return;
+
+    members.push({n,r});
+    name.value=""; role.value="";
+    renderMembers();
+    update();
+}
+
+function renderMembers(){
+    ml.innerHTML="";
+    members.forEach(m=>{
+        ml.innerHTML += `<li>${m.n} - ${m.r}</li>`;
+    });
+}
+
+/* ================= PROJECTS ================= */
+function addProject(){
+    let p = project.value;
+    if(!p) return;
+
+    projects.push(p);
+    project.value="";
+    renderProjects();
+    update();
+}
+
+function renderProjects(){
+    prl.innerHTML="";
+    projects.forEach(p=>{
+        prl.innerHTML += `<li>${p}</li>`;
+    });
+}
+
+/* ================= MISSION AI ================= */
+function runAI(){
+    let input = mission.value.toLowerCase();
+
+    if(input.includes("add mission")){
+        let text = input.replace("add mission","");
+        missions.push(text);
+        renderMissions();
+        speak("Mission added");
+    }
+
+    update();
+}
+
+function renderMissions(){
+    msl.innerHTML="";
+    missions.forEach(m=>{
+        msl.innerHTML += `<li>${m}</li>`;
+    });
+}
+
+/* ================= AI COMMAND SYSTEM ================= */
+function ai(){
+    let input = document.getElementById("ai").value.toLowerCase();
+    let out = "";
+
+    if(input.includes("add member")){
+        let parts = input.replace("add member","").trim().split(" ");
+        members.push({n:parts[0], r:parts[1]||"unknown"});
+        renderMembers();
+        out = "Member added";
+    }
+
+    else if(input.includes("add project")){
+        let p = input.replace("add project","");
+        projects.push(p);
+        renderProjects();
+        out = "Project added";
+    }
+
+    else if(input.includes("show members")){
+        out = "Members: " + members.length;
+    }
+
+    else if(input.includes("show missions")){
+        out = "Missions: " + missions.length;
+    }
+
+    else {
+        out = "Command not recognized";
+    }
+
+    document.getElementById("out").innerHTML += "<br><br>You: " + input + "<br>AI: " + out;
+
+    speak(out);
+    document.getElementById("ai").value = "";
+}
+
+/* ================= INIT ================= */
+update();
